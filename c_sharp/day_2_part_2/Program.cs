@@ -1,4 +1,6 @@
-﻿var games = File.ReadAllLines("input");
+﻿using System;
+
+var games = File.ReadAllLines("input");
 
 string[] game_types = ["red", "green", "blue"];
 
@@ -13,7 +15,7 @@ for (int i = 0; i < games.Length; i++)
     var game_info = game_str.Substring(game_str.IndexOf(':') + 2);
 
     var combinations = game_info.Split(";");
-    Console.WriteLine(game_info);
+    //Console.WriteLine(game_info);
 
     int max_red = 0;
     int max_green = 0;
@@ -24,9 +26,9 @@ for (int i = 0; i < games.Length; i++)
 
         foreach (var cube in cubes)
         {
-            Console.WriteLine(cube);
+            //Console.WriteLine(cube);
             var num = returnNumber(cube);
-            Console.WriteLine(num);
+            //Console.WriteLine(num);
             if (cube.Contains("red", StringComparison.CurrentCulture))
             {
                 // Red:
@@ -49,11 +51,8 @@ for (int i = 0; i < games.Length; i++)
     }
 
   // Console.WriteLine($"Max Red: {max_red} Max Green: {max_green} Max Blue: {max_blue}");
-
-    if (max_red <= num_red && max_blue <= num_blue && max_green <= num_green) 
-    {
-        possible_matches.Add(i + 1);
-    } 
+    possible_matches.Add(max_blue * max_green * max_red);
+   
 }
 
 Console.WriteLine(possible_matches.Sum());
