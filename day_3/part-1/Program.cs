@@ -1,148 +1,69 @@
-﻿// See https://aka.ms/new-console-template for more information
-var lines = File.ReadAllLines("example");
+var alltext = File.ReadAllText("example");
 
-var length_of_one_line = lines[0].Length;
+var lines = alltext.Split("\n");
 
-Console.WriteLine(length_of_one_line);
+var length_of_line = lines[0].Length;
 
-char[] tokens = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+Console.WriteLine(length_of_line);
+var pos_idx_to_token = new Dictionary<int, char>();
+var pos_idx_to_symbol = new Dictionary<int, char>();
 
-var token_cords = new List<Cords>();
-var symbol_cords = new List<Cords>();
+char[] tokens = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
-for (int y = 0; y < lines.Length; y++)
+for (int i = 0; i < alltext.Length; i++)
 {
-    var line = lines[y];
+    var idx = i + 1;
+    var ch = alltext[i];
 
-    for (int x = 0; x < line.Length; x++)
-    {
-        var ch = line[x];
-        if (tokens.Contains(ch))
-        {
-            token_cords.Add(new Cords(x, y, ch));
-            continue;
-        }
-
-        if (ch != '.')
-        {
-            symbol_cords.Add(new Cords(x, y, ch));
-            Console.WriteLine(ch);
-            continue;
-
-        }
+    if (ch == '\n') {
+        continue;
     }
-
-}
-
-//Console.WriteLine(string.Join(',', symbol_cords));
-var head = token_cords[0];
-var tmp_part_cords = new List<Cords>
-{
-    head
-};
-
-var part_numbers = new List<PartNumber>();
-for (int i = 1; i < token_cords.Count; i++)
-{
-    var curr = token_cords[i];
-    if (head.x + 1 == curr.x) {
-        head = curr;
-        tmp_part_cords.Add(curr);
-    } else {
-        Console.WriteLine();
-        part_numbers.Add(new PartNumber());
-        tmp_part_cords = [];
+    if (tokens.Contains(ch))
+    {
+        pos_idx_to_token[idx] = ch;
+        continue;
+    }
+    if (ch != '.')
+    {
+        pos_idx_to_symbol[idx] = ch;
     }
 }
 
-foreach (var symbol in symbol_cords)
+foreach (var item in pos_idx_to_token)
 {
-    Console.WriteLine(string.Join(",", symbol.ReturnNeighbours()));
+    Console.WriteLine(item);
+}
+var explored_cords = new List<int>();
 
-    foreach (var item in symbol.ReturnNeighbours())
+foreach (var symbol in pos_idx_to_symbol)
+{
+    var curr_key = symbol.Key - 1;
+  
+    var left_hand_key = curr_key - 1;
+    var right_hand_key = curr_key + 1;
+    var top_key = curr_key - length_of_line - 1;
+    var bottom_key = curr_key + length_of_line + 1; 
+
+    var top_left_key = top_key - 1;
+    var top_right_key = top_key + 1;
+
+    var bottom_left_key = bottom_key - 1;
+    var bottom_right_key = bottom_key + 1;
+
+    var keys = new List<int>() {
+        top_left_key, top_key, top_right_key,
+        left_hand_key, curr_key, right_hand_key,
+        bottom_left_key, bottom_key, bottom_right_key
+    };
+    Console.WriteLine($"{alltext[top_left_key]} {alltext[top_key]} {alltext[top_right_key]}");
+    Console.WriteLine($"{alltext[left_hand_key]} {alltext[curr_key]} {alltext[right_hand_key]}");
+    Console.WriteLine($"{alltext[bottom_left_key]} {alltext[bottom_key]} {alltext[bottom_right_key]}");
+
+    foreach (var key in keys)
     {
-        if (token_cords.Contains(item))
-        {
-
-            // Discover All Neighbours:
-        }
-
+        if (pos_idx_to_token.ContainsKey(key)) {
+            Console.WriteLine(key);
+        }   
     }
     break;
-}
-
-/*
-foreach (var symbol_idx in symbol_cords)
-{
-    var top_idx = symbol_idx - length_of_one_line;
-    var bottom_idx = symbol_idx + length_of_one_line;
-    var left_idx = -1;
-    var right_idx = -1;
-
-
-    // This means the symbol is NOT at the right edge:
-    if ((symbol_idx + 1) % length_of_one_line != 0) 
-    {
-        right_idx = symbol_idx + 1;
-    }
-
-    // This means the symbol is NOT at the left edge
-    if ((symbol_idx + 1) % length_of_one_line != 1) {
-        left_idx = symbol_idx - 1;
-    }
-
-    Console.WriteLine($"Symbol at {symbol_idx} has neighbours"
-     + $" of: ({top_idx}, {bottom_idx}, {right_idx}, {left_idx}) ");
-    break;
-}
-*/
-
-struct PartNumber(int number, List<Cords> cords)
-{
-    private int number = number;
-    private List<Cords> cords = cords;
-
-    public override string ToString()
-    {
-        return $"{number}: {string.Join(",", cords)}";
-    }
-}
-
-struct Cords(int x, int y, char character)
-{
-    public int x = x;
-    public int y = y;
-    public char character = character;
-
-    public readonly Cords[] ReturnNeighbours()
-    {
-        var self = new Cords(x, y, character);
-        var right_neighbour = new Cords(x + 1, y, character);
-        var left_neighbour = new Cords(x - 1, y, character);
-        var top_neighbour = new Cords(x, y - 1, character);
-        var bottom_neighbour = new Cords(x, y + 1, character);
-
-        var top_left_corner = new Cords(x - 1, y - 1, character);
-        var top_right_corner = new Cords(x + 1, y - 1, character);
-        var bottom_left_corner = new Cords(x - 1, y + 1, character);
-        var bottom_right_corner = new Cords(x + 1, y + 1, character);
-
-        return
-        [
-            top_left_corner, top_neighbour, top_right_corner,
-            left_neighbour, self, right_neighbour,
-            bottom_left_corner, bottom_neighbour, bottom_right_corner
-        ];
-    }
-
-    public override string ToString()
-    {
-        return $"({x}, {y})";
-    }
-};
-
-struct Token(string token_str, List<Cords> cords)
-{
-    public string token_str = token_str;
-    public List<Cords> cords = cords;
 }
