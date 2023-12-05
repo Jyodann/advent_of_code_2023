@@ -1,4 +1,4 @@
-var alltext = File.ReadAllText("example");
+﻿var alltext = File.ReadAllText("input");
 
 var lines = alltext.Split("\n");
 
@@ -15,7 +15,8 @@ for (int i = 0; i < alltext.Length; i++)
     var idx = i + 1;
     var ch = alltext[i];
 
-    if (ch == '\n') {
+    if (ch == '\n')
+    {
         continue;
     }
     if (tokens.Contains(ch))
@@ -35,14 +36,15 @@ foreach (var item in pos_idx_to_token)
 }
 var explored_cords = new List<int>();
 
+var full_token_list = new List<int>();
 foreach (var symbol in pos_idx_to_symbol)
 {
     var curr_key = symbol.Key - 1;
-  
+
     var left_hand_key = curr_key - 1;
     var right_hand_key = curr_key + 1;
     var top_key = curr_key - length_of_line - 1;
-    var bottom_key = curr_key + length_of_line + 1; 
+    var bottom_key = curr_key + length_of_line + 1;
 
     var top_left_key = top_key - 1;
     var top_right_key = top_key + 1;
@@ -59,11 +61,54 @@ foreach (var symbol in pos_idx_to_symbol)
     Console.WriteLine($"{alltext[left_hand_key]} {alltext[curr_key]} {alltext[right_hand_key]}");
     Console.WriteLine($"{alltext[bottom_left_key]} {alltext[bottom_key]} {alltext[bottom_right_key]}");
 
+    var explored_idxs = new List<int>();
     foreach (var key in keys)
     {
-        if (pos_idx_to_token.ContainsKey(key)) {
-            Console.WriteLine(key);
-        }   
+        var actual_key = key + 1;
+        var temp_token_list = new List<int>();
+
+        if (explored_idxs.Contains(actual_key))
+        {
+            continue;
+        }
+
+        if (pos_idx_to_token.ContainsKey(actual_key))
+        {
+            // Find neighbours in negative pos first:
+
+            var negative_pos = actual_key - 1;
+            var positive_pos = actual_key + 1;
+
+            temp_token_list.Add(actual_key);
+            while (pos_idx_to_token.ContainsKey(negative_pos))
+            {
+                temp_token_list.Add(negative_pos);
+                negative_pos--;
+            }
+
+            while (pos_idx_to_token.ContainsKey(positive_pos))
+            {
+                temp_token_list.Add(positive_pos);
+                positive_pos++;
+            }
+
+            temp_token_list.Sort();
+        }
+        explored_idxs.AddRange(temp_token_list);
+        var full_number = "";
+        foreach (var token in temp_token_list)
+        {
+            full_number += pos_idx_to_token[token];
+        }
+
+        if (full_number == string.Empty)
+        {
+            continue;
+        }
+
+        full_token_list.Add(int.Parse(full_number));
+        Console.WriteLine(full_number);
     }
-    break;
 }
+
+Console.WriteLine(full_token_list.Sum());
