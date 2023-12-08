@@ -51,6 +51,10 @@ double CalculateStrength(string cards) {
         var curr_char = cards[i];
         double idx_of = (Array.IndexOf(strengths, curr_char) + 1) / (double)strengths.Length;
         var strength = idx_of * Math.Pow(10, 6 - i);
+
+        if (idx_of == 1) {
+            strength += 1;
+        }
         curr_strength += strength;
     }
     return curr_strength + ((int)kind * 1_000_000_0);
